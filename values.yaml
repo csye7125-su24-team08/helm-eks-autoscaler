@@ -1,0 +1,11 @@
+cluster-autoscaler:
+  autoDiscovery:
+    enabled: true
+    clusterName: "infra-eks-EdvBojLt"
+    # tags: "k8s.io/cluster-autoscaler/enabled, k8s.io/cluster-autoscaler/infra-eks-EdvBojLt"
+    cloudProvider: "gcp"
+  rbac:
+    create: true
+    serviceAccount:
+      annotations:
+        eks.amazonaws.com/role-arn: "arn:aws:iam::123456789012:role/eks-as-eks-as-ClusterAutoscalerRole-1JZJZJZJZJZJZ"

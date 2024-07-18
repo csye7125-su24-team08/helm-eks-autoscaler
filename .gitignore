@@ -1,0 +1,7 @@
+#VScode 
+.vscode
+
+# MacOS
+.DS_Store
+
+output.yaml
