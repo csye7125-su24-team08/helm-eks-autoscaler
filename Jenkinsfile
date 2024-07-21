@@ -57,7 +57,7 @@ pipeline {
     stage('Get New Version') {
       steps {
         sh '''
-        newVersion=$(grep 'next release version' semantic-release-output.txt | awk '{print $NF}')
+        newVersion=$(grep 'version' Chart.yaml | awk '{print $NF}')
         echo "New version: $newVersion"
         '''
       }
@@ -82,13 +82,12 @@ pipeline {
           // Build and push multi-architecture image
           echo 'Build and push multi-architecture image'
           sh '''
-          newVersion=$(grep 'next release version' semantic-release-output.txt | awk '{print $NF}')
-          printf "Building version: %s\n" $newVersion"
+          newVersion=$(grep 'version' Chart.yaml | awk '{print $NF}')
           docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 \
               --progress=plain \
               --cache-from=type=registry,ref=${autoscaler_registry}:cache \
               --cache-to=type=inline \
-              -t ${autoscaler_registry}:`${newVersion}` \
+              -t ${autoscaler_registry}:${newVersion} \
               -t ${autoscaler_registry}:latest \
               -f ./Dockerfile \
               --push .
