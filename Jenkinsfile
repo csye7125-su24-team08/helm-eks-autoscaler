@@ -7,7 +7,6 @@ pipeline {
     GITHUB_CREDENTIALS = credentials('GITHUB_CREDENTIALS') 
     DOCKER_CREDENTIALS = credentials('DOCKER_CREDENTIALS')
     autoscaler_registry = 'dongrep/eks-autoscaler'
-    newVersion = ''
   }
   stages {
     stage('Clone repository') {
@@ -52,12 +51,6 @@ pipeline {
           git add Chart.yaml
           npx semantic-release
           '''
-
-          script {
-            newVersion = sh(script: 'grep "next release version" semantic-release-output.txt | awk \'{print $NF}\'', returnStdout: true).trim()
-            // print new version
-            echo "New version: ${newVersion}"
-          }
         }
       }
     }
@@ -81,11 +74,12 @@ pipeline {
           // Build and push multi-architecture image
           echo 'Build and push multi-architecture image'
           sh """
+              newVersion=$(grep 'version' Chart.yaml | awk '{print $NF}')
               docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 \
                   --progress=plain \
                   --cache-from=type=registry,ref=${autoscaler_registry}:cache \
                   --cache-to=type=inline \
-                  -t ${autoscaler_registry}:`$newVersion` \
+                  -t ${autoscaler_registry}:`${newVersion}` \
                   -t ${autoscaler_registry}:latest \
                   -f ./Dockerfile.webapp \
                   --push .
