@@ -57,7 +57,7 @@ pipeline {
     stage('Get New Version') {
       steps {
         sh '''
-        newVersion=$(grep 'version' Chart.yaml | awk '{print $2}')
+        newVersion=$(grep '^version:' Chart.yaml | awk '{print $2}')
         echo "New version: $newVersion"
         '''
       }
@@ -82,7 +82,7 @@ pipeline {
           // Build and push multi-architecture image
           echo 'Build and push multi-architecture image'
           sh '''
-          newVersion=$(grep 'version' Chart.yaml | awk '{print $2}')
+          newVersion=$(grep '^version:' Chart.yaml | awk '{print $2}')
           docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 \
               --progress=plain \
               --cache-from=type=registry,ref=${autoscaler_registry}:cache \
