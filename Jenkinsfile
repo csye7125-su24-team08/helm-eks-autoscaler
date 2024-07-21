@@ -48,7 +48,6 @@ pipeline {
           npx semantic-release --dry-run > semantic-release-output.txt
           newVersion=$(grep 'next release version' semantic-release-output.txt | awk '{print $NF}')
           echo "Change chart version"
-          echo "New version: ${newVersion}"
           sed -i "s/^version: .*/version: ${newVersion}/" Chart.yaml
           git add Chart.yaml
           npx semantic-release
@@ -56,6 +55,8 @@ pipeline {
 
           script {
             newVersion = sh(script: 'grep "next release version" semantic-release-output.txt | awk \'{print $NF}\'', returnStdout: true).trim()
+            // print new version
+            echo "New version: ${newVersion}"
           }
         }
       }
