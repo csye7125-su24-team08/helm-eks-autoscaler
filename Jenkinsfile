@@ -54,6 +54,14 @@ pipeline {
         }
       }
     }
+    stage('Get New Version') {
+      steps {
+        sh '''
+        newVersion=$(grep '^version:' Chart.yaml | awk '{print $2}')
+        echo "New version: $newVersion"
+        '''
+      }
+    }
     stage('Build and Push Autoscaler Image') {
       when {
         branch 'main'
@@ -74,14 +82,14 @@ pipeline {
           // Build and push multi-architecture image
           echo 'Build and push multi-architecture image'
           sh '''
-          newVersion=$(grep 'version' Chart.yaml | awk '{print $NF}')
+          newVersion=$(grep '^version:' Chart.yaml | awk '{print $2}')
           docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 \
               --progress=plain \
               --cache-from=type=registry,ref=${autoscaler_registry}:cache \
               --cache-to=type=inline \
-              -t ${autoscaler_registry}:`${newVersion}` \
+              -t ${autoscaler_registry}:${newVersion} \
               -t ${autoscaler_registry}:latest \
-              -f ./Dockerfile.webapp \
+              -f ./Dockerfile \
               --push .
           '''
         }
