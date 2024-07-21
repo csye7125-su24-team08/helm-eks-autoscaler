@@ -7,6 +7,7 @@ pipeline {
     GITHUB_CREDENTIALS = credentials('GITHUB_CREDENTIALS') 
     DOCKER_CREDENTIALS = credentials('DOCKER_CREDENTIALS')
     autoscaler_registry = 'dongrep/eks-autoscaler'
+    newVersion = ''
   }
   stages {
     stage('Clone repository') {
@@ -52,6 +53,10 @@ pipeline {
           git add Chart.yaml
           npx semantic-release
           '''
+
+          script {
+            newVersion = sh(script: 'grep "next release version" semantic-release-output.txt | awk \'{print $NF}\'', returnStdout: true).trim()
+          }
         }
       }
     }
@@ -79,7 +84,7 @@ pipeline {
                   --progress=plain \
                   --cache-from=type=registry,ref=${autoscaler_registry}:cache \
                   --cache-to=type=inline \
-                  -t ${autoscaler_registry}:`${newVersion}` \
+                  -t ${autoscaler_registry}:`$newVersion` \
                   -t ${autoscaler_registry}:latest \
                   -f ./Dockerfile.webapp \
                   --push .
