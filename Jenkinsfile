@@ -83,7 +83,7 @@ pipeline {
           echo 'Build and push multi-architecture image'
           sh '''
           newVersion=$(grep '^version:' Chart.yaml | awk '{print $2}')
-          docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 \
+          docker buildx build --platform linux/amd64,linux/arm64 \
               --progress=plain \
               --cache-from=type=registry,ref=${autoscaler_registry}:cache \
               --cache-to=type=inline \
